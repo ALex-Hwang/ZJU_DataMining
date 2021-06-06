@@ -43,10 +43,12 @@ def association(freq_sets, supports, min_conf):
                     rule = (freq_set, sub_set - freq_set, frq, conf)
                     if conf >= min_conf:
                         res_set = sub_set - freq_set
-                        if frozenset(["y_no"]) in res_set or frozenset(["y_yes"]) in res_set:
+                        if frozenset(["y_no"]).issubset(res_set) or frozenset(["y_yes"]).issubset(res_set):
                             #print(freq_set,"-->", res_set,'frq:',frq,'conf:',conf)
                             rules.append(rule)
     return rules
+
+
 
 if __name__ == "__main__":
     data = pd.read_csv('./dataset/bank-additional-full.csv', sep=';')
