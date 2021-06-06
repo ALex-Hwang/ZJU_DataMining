@@ -26,6 +26,28 @@ def apriori(data_set, mini_support):
     
     return item_sets, supports
 
+
+# 生成关联规则
+# 由于我们最后只需要推出y与否，所以我们在最后做一个判断，值输出y作为结果的关联规则。
+def association(freq_sets, supports, min_conf):
+    rules = []
+    max_len = len(freq_sets)
+
+    # 筛选符合规则的频繁集计算置信度，满足最小置信度的关联规则添加到列表
+    for k in range(max_len - 1):
+        for freq_set in freq_sets[k]:
+            for sub_set in freq_sets[k + 1]:
+                if freq_set.issubset(sub_set):
+                    frq = supports[sub_set]
+                    conf = supports[sub_set] / supports[freq_set]
+                    rule = (freq_set, sub_set - freq_set, frq, conf)
+                    if conf >= min_conf:
+                        res_set = sub_set - freq_set
+                        if frozenset(["y_no"]) in res_set or frozenset(["y_yes"]) in res_set:
+                            #print(freq_set,"-->", res_set,'frq:',frq,'conf:',conf)
+                            rules.append(rule)
+    return rules
+
 if __name__ == "__main__":
     data = pd.read_csv('./dataset/bank-additional-full.csv', sep=';')
     # 预处理    
@@ -39,34 +61,3 @@ if __name__ == "__main__":
     print("-"*40)
     print(support)
 
-
-    '''
-    dic = {'user_id':[111,111,	
-                          112,112,112,112,
-                          113,113,113,113,
-                          114,114,114,114,
-                          115,115,115,115],
-               'item_id':['豆奶','莴苣',		
-                          '莴苣','尿布','葡萄酒','甜菜',
-                          '豆奶','尿布','葡萄酒','橙汁',
-                          '莴苣','豆奶','尿布','葡萄酒',
-                          '莴苣','豆奶','尿布','橙汁']}
-    data = pd.DataFrame(dic)
-
-    # 关联规则中不考虑多次购买同一件物品，删除重复数据
-    data = data.drop_duplicates()
-
-    # 初始化列表
-    data_set = []
-
-    # 分组聚合，同一用户购买多种商品的合并为一条数据，只有1件商品的没有意义，需要进行过滤
-    groups = data.groupby(by='user_id')
-    for group in groups:
-        if len(group[1]) >= 2:
-            data_set.append(group[1]['item_id'].tolist())
-
-    l, support = apriori(data_set, 0.5)
-    print(l)
-    print(support)
-
-    '''
